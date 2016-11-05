@@ -1,0 +1,20 @@
+# Supply chain
+Abc is a furniture store and has presence is 6 cities (Del, Mum, Kol, Che, Hyd, Ban). Its subsidary company xyz a fashion retail has online presence via xyz.in. Abc wants to take part but wants to handle delivery themself. Abc wants to develop 10 feeder houses in 10 cities and will not store any product; products will arrive from biggers cities. 
+
+Q. Identify 10 cities which suit Abc best
+Q. For a specific city how many trucks must be kept in warehouse?
+
+# Space optimization 
+
+A footwear company did $10 million business last year. In its retail outlet it has 3 types of space viz. 10 backwall with 3 layers (premium) 10 feet wide, gondola 2 layers 2 side fixture (non premium) 10 feet wide, 10 Table 2X2 feet (most premium). 
+a. 30% of space is allocated to men products which contribute to 20% in revenue
+b. 50% of space is allocated to women which contribute to 55% in revenue
+c. 20% of space is allocated to kids which contribute to 25% in revenue
+
+Q. Company wants to reallocate space so as to increase its revenue to $11 million keeping total shelf space same
+
+# Price optimization
+
+A company sells shirts in 3 price range $9.99 with 10 options, $12.99 with 20 options, $17.99 with 20 options. Revenue share of $9.99 is 30%, $12.99 is 40% and $17.99 is 30%. Markdown on $9.99 was 10%, $12.99 was 10% and $17.99 was 25%. Company is considering to introduce a fourth shirt at price $14.99. 
+
+Q. If it were to introduce $14.99 how many options it must consider keeping overall options same (=50)
