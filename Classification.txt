@@ -1,0 +1,160 @@
+Classification
+**************
+Often the methods used for classification first predict the probability of each of the categories of a qualitative variable
+
+Three most widely used classifiers: 
+- logistics reg, 
+- Linear Discrimant Analysis, (if we use lin reg to predict a binary response)
+- KNN
+
+Computation-intensive methods 
+- generalized additive models
+- trees
+- random forest
+- boosting 
+- Support vector machines
+
+# Logistic Reg
+***************
+
+Models the probability that Y belongs to a particular category
+
+we use logistic fn  p(X) = e^(bo+b1X)/1+e^(bo+b1X)
+
+The logistics fn will always produce an S shaped curve. 
+Odds p(X)/1-p(X) can range from 0 ~ infinity and so we take log-odd or logit.
+
+Lin reg uses least squares approach Logistic uses maximum likelihood in fact least sq method is special case of maximum likelihood.  
+
+We measure the accuracy of the coefficient estimates by computing their standard errors. here z-stats plays the same role as the t-statistics in linear reg output
+
+
+MLE vs OLS 
+----------
+
+OLS- This is a method for approximately determining the unknown parameters located in a linear regression model. According to books of statistics and other online sources, the ordinary least squares is obtained by minimizing the total of squared vertical distances between the observed responses within the dataset and the responses predicted by the linear approximation.
+
+MLE - Maximum likelihood estimation, or MLE, is a method used in estimating the parameters of a statistical model, and for fitting a statistical model to data. You can estimate the mean and variance of the height of your subjects. The MLE would set the mean and variance as parameters in determining the specific parametric values in a given model. The maximum likelihood estimation covers a set of parameters which can be used for predicting the data needed in a normal distribution.
+
+maximum likelihood estimation (MLE) is a method of estimating the parameters of a statistical model given observations, by finding the parameter values that maximize the likelihood of making the observations given the parameters.
+
+Evaulate Logistic model & Diagnostic
+
+AIC
+----
+The analogous metric of adjusted R² in logistic regression is AIC. AIC is the measure of fit which penalizes model for the number of model coefficients. Therefore, we always prefer model with minimum AIC value.
+
+Null Deviance and Residual Deviance 
+-----------------------------------
+Null Deviance indicates the response predicted by a model with nothing but an intercept. Lower the value, better the model. 
+Residual deviance indicates the response predicted by a model on adding independent variables. Lower the value, better the model.
+
+Goodness of fit (Chi square test)
+---------------
+Likelihood Ratio Test 
+
+A logistic regression is said to provide a better fit to the data if it demonstrates an improvement over a model with fewer predictors. This is performed using the likelihood ratio test, which compares the likelihood of the data under the full model against the likelihood of the data under a model with fewer predictors.
+
+Hosmer-Lemeshow Test uses pearson chi square test
+-------------------------------------------------
+It examines whether the observed proportions of events are similar to the predicted probabilities of occurence in subgroups of the data set using a pearson chi square test
+
+library(MKmisc)
+HLgof.test(fit = fitted(mod_fit_one), obs = training$Class)
+
+library(ResourceSelection)
+hoslem.test(training$Class, fitted(mod_fit_one), g=10) # group 10 
+
+Small values with large p-values indicate a good fit to the data while large values with p-values below 0.05 indicate a poor fit. The null hypothesis holds that the model fits the data ***
+
+Wald test
+---------
+A wald test is used to evaluate the statistical significance of each coefficient in the model and is calculated by taking the ratio of the square of the regression coefficient to the square of the standard error of the coefficient. The idea is to test the hypothesis that the coefficient of an independent variable in the model is significantly different from zero. If the test fails to reject the null hypothesis, this suggests that removing the variable from the model will not substantially harm the fit of that model.
+
+
+Variable Importance
+--------------------
+To assess the relative importance of individual predictors in the model, we can also look at the absolute value of the t-statistic for each model parameter.
+
+varImp(mod_fit)
+
+
+Validation of Predicted Values
+===============================
+
+Classification Rate
+-------------------
+
+When developing models for prediction, the most critical metric regards how well the model does in predicting the target variable on out of sample observations
+Confusion matrix
+
+ROC Curve
+---------
+The receiving operating characteristic is a measure of classifier performance. AUROC values above 0.80 indicate that the model does a good job in discriminating between the two categories which comprise our target variable.
+
+ROC is a plot between True positive rate (sensitivity)[1-Type II error] and FPR (1-specificity)[Type I error].. 
+
+library(pROC)
+roc.formula(formula = Class ~ CreditHistory.Critical, data = training)
+library(ROCR)
+prob <- predict(mod_fit_one, newdata=testing, type="response")
+pred <- prediction(prob, testing$Class)
+perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+plot(perf)
+auc <- performance(pred, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+concordant discordant
+---------------------
+higher percentage better the model is
+
+concordant - prob(event) > prob(non-event)
+discordant - prob(non-event) > prob(event)
+ties - prob(event) = prob(non-event)
+
+K-Fold cross validation 
+------------------------
+When evaluating models, we often want to assess how well it performs in predicting the target variable on different subsets of the data. One such technique for doing this is k-fold cross-validation, which partitions the data into k equally sized segments (called ‘folds’). One fold is held out for validation while the other k-1 folds are used to train the model and then used to predict the target variable in our testing data. This process is repeated k times, with the performance of each model in predicting the hold-out set being tracked using a performance metric such as accuracy. The most common variation of cross validation is 10-fold cross-validation.
+
+ctrl <- trainControl(method = "repeatedcv", number = 10, savePredictions = TRUE)
+mod_fit <- train(Class ~ Age + ForeignWorker + Property.RealEstate + Housing.Own + 
+                   CreditHistory.Critical,  data=GermanCredit, method="glm", family="binomial",
+                 trControl = ctrl, tuneLength = 5)
+
+pred = predict(mod_fit, newdata=testing)
+confusionMatrix(data=pred, testing$Class)
+
+Somer's D 
+----------
+% concordant - % discordant pair. Higher the Somer's D better is the model
+
+In addition to Somers D, Gamma, tau-a and c, which use various combinations of these pairs.
+
+Goodman Kruskal gamma
+---------------------
+
+Kendall's tau
+-------------
+
+# Linear discrimant analysis 
+*****************************
+
+used for multiple-class classification. This approach model the distribution of predictors X separately in each of the response class (Y) and then uses Bayes' theorem *for normal distribution model is very similar to logistics
+
+Problems with logistics
+- when classes are well separated 
+- if n is small and the distribution of the predictors X is approx normal in each of the classes
+- more than 2 response classes
+
+# KNN
+*****
+
+Doesnt tell which predictors are important
+
+In theory we always like to predict qualitative responses using the Bayes classifier. But we wouldnt know the conditional distribution of Y given X and so computing Bayes classifer is immpossible.
+
+For a given interget K and a test obs x, KNN identifies the K points in the training data that are closest to x (N). Then estimates to conditional probability for class j as the fraction of points in N. 
+Finally KNN applies Bayes rule and classifies the test obs x to the class with the largest probability
+
+Low K value produce low bias but high variance. Choice has to be made for obtaining correct level of flexibility (bias-variance trade off)
